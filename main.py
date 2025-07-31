@@ -20,11 +20,16 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 class ToolTip:
-    """Simple tooltip class for GUI elements"""
-    def __init__(self, widget, text):
+    """Modern tooltip class for GUI elements"""
+    def __init__(self, widget, text, colors=None):
         self.widget = widget
         self.text = text
         self.tooltip_window = None
+        self.colors = colors or {
+            'bg': '#1e1f22',
+            'text': '#ffffff',
+            'border': '#4f545c'
+        }
         widget.bind("<Enter>", self.on_enter)
         widget.bind("<Leave>", self.on_leave)
     
@@ -38,8 +43,12 @@ class ToolTip:
         self.tooltip_window.wm_geometry(f"+{x}+{y}")
         
         label = tk.Label(self.tooltip_window, text=self.text, 
-                        background="lightyellow", relief="solid", borderwidth=1,
-                        font=("Arial", 8))
+                        background=self.colors['bg'], 
+                        foreground=self.colors['text'],
+                        relief="solid", 
+                        borderwidth=1,
+                        font=("Segoe UI", 9),
+                        padx=8, pady=4)
         label.pack()
     
     def on_leave(self, event):
@@ -63,12 +72,30 @@ class LogHandler(logging.Handler):
 class MediaScraperGUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("Web Media Scraper - Portfolio Project")
-        self.root.geometry("800x700")
+        self.root.title("Web Media Scraper")
+        self.root.geometry("900x800")
         
-        # Configure style
-        style = ttk.Style()
-        style.theme_use('clam')
+        # Modern color scheme
+        self.colors = {
+            'bg_primary': '#2b2d31',      # Dark gray background
+            'bg_secondary': '#36393f',     # Slightly lighter gray
+            'bg_tertiary': '#40444b',      # Card/panel background
+            'accent': '#5865f2',           # Discord blue accent
+            'accent_hover': '#4752c4',     # Darker blue for hover
+            'success': '#57f287',          # Green for success
+            'warning': '#fee75c',          # Yellow for warnings
+            'danger': '#ed4245',           # Red for errors
+            'text_primary': '#ffffff',     # White text
+            'text_secondary': '#b9bbbe',   # Light gray text
+            'text_muted': '#72767d',       # Muted gray text
+            'border': '#4f545c',           # Border color
+        }
+        
+        # Configure root window
+        self.root.configure(bg=self.colors['bg_primary'])
+        
+        # Configure modern ttk style
+        self.setup_modern_style()
         
         # Threading and logging setup
         self.scraping_thread = None
@@ -84,6 +111,99 @@ class MediaScraperGUI:
         # Start log monitor
         self.monitor_logs()
     
+    def setup_modern_style(self):
+        """Setup modern styling for ttk widgets"""
+        style = ttk.Style()
+        
+        # Configure modern button style
+        style.configure('Modern.TButton',
+                       background=self.colors['accent'],
+                       foreground=self.colors['text_primary'],
+                       borderwidth=0,
+                       focuscolor='none',
+                       relief='flat',
+                       padding=(20, 10))
+        
+        style.map('Modern.TButton',
+                 background=[('active', self.colors['accent_hover']),
+                           ('pressed', self.colors['accent_hover'])])
+        
+        # Success button style
+        style.configure('Success.TButton',
+                       background=self.colors['success'],
+                       foreground=self.colors['bg_primary'],
+                       borderwidth=0,
+                       focuscolor='none',
+                       relief='flat',
+                       padding=(20, 10))
+        
+        # Danger button style
+        style.configure('Danger.TButton',
+                       background=self.colors['danger'],
+                       foreground=self.colors['text_primary'],
+                       borderwidth=0,
+                       focuscolor='none',
+                       relief='flat',
+                       padding=(15, 8))
+        
+        # Configure modern entry style
+        style.configure('Modern.TEntry',
+                       fieldbackground=self.colors['bg_tertiary'],
+                       foreground=self.colors['text_primary'],
+                       borderwidth=1,
+                       relief='solid',
+                       insertcolor=self.colors['text_primary'])
+        
+        # Configure modern label style
+        style.configure('Modern.TLabel',
+                       background=self.colors['bg_primary'],
+                       foreground=self.colors['text_primary'])
+        
+        style.configure('Heading.TLabel',
+                       background=self.colors['bg_primary'],
+                       foreground=self.colors['text_primary'],
+                       font=('Segoe UI', 16, 'bold'))
+        
+        style.configure('Subheading.TLabel',
+                       background=self.colors['bg_primary'],
+                       foreground=self.colors['text_secondary'],
+                       font=('Segoe UI', 9))
+        
+        # Configure modern frame style
+        style.configure('Modern.TFrame',
+                       background=self.colors['bg_primary'],
+                       relief='flat')
+        
+        style.configure('Card.TFrame',
+                       background=self.colors['bg_tertiary'],
+                       relief='flat',
+                       borderwidth=1)
+        
+        # Configure modern labelframe style
+        style.configure('Modern.TLabelframe',
+                       background=self.colors['bg_primary'],
+                       foreground=self.colors['text_primary'],
+                       borderwidth=1,
+                       relief='solid')
+        
+        style.configure('Modern.TLabelframe.Label',
+                       background=self.colors['bg_primary'],
+                       foreground=self.colors['text_secondary'],
+                       font=('Segoe UI', 10, 'bold'))
+        
+        # Configure modern checkbutton style
+        style.configure('Modern.TCheckbutton',
+                       background=self.colors['bg_primary'],
+                       foreground=self.colors['text_primary'],
+                       focuscolor='none')
+        
+        # Configure modern progressbar style
+        style.configure('Modern.TProgressbar',
+                       background=self.colors['accent'],
+                       troughcolor=self.colors['bg_tertiary'],
+                       borderwidth=0,
+                       relief='flat')
+    
     def setup_logging(self):
         """Setup logging to redirect to GUI"""
         # Create custom handler for GUI
@@ -97,127 +217,437 @@ class MediaScraperGUI:
         logging.getLogger().addHandler(self.gui_handler)
     
     def create_widgets(self):
-        """Create the main GUI widgets"""
-        # Main frame
-        main_frame = ttk.Frame(self.root, padding="10")
-        main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        """Create the main GUI widgets with modern styling"""
+        # Create main canvas for scrolling
+        self.main_canvas = tk.Canvas(self.root, bg=self.colors['bg_primary'], highlightthickness=0)
+        self.main_canvas.pack(side='left', fill='both', expand=True)
+        
+        # Add global scrollbar for entire window
+        global_scrollbar = tk.Scrollbar(self.root, orient='vertical', command=self.main_canvas.yview,
+                                       bg=self.colors['bg_secondary'],
+                                       troughcolor=self.colors['bg_primary'],
+                                       activebackground=self.colors['accent'],
+                                       highlightthickness=0,
+                                       bd=1,
+                                       width=16,
+                                       elementborderwidth=1,
+                                       relief='raised')
+        global_scrollbar.pack(side='right', fill='y')
+        self.main_canvas.configure(yscrollcommand=global_scrollbar.set)
+        
+        # Create scrollable frame inside canvas
+        self.scrollable_frame = tk.Frame(self.main_canvas, bg=self.colors['bg_primary'])
+        self.canvas_window = self.main_canvas.create_window((0, 0), window=self.scrollable_frame, anchor='nw')
+        
+        # Main container with padding inside the scrollable frame
+        main_container = tk.Frame(self.scrollable_frame, bg=self.colors['bg_primary'])
+        main_container.pack(fill='both', expand=True, padx=15, pady=(0, 15))  # Removed top padding
         
         # Configure grid weights
-        self.root.columnconfigure(0, weight=1)
-        self.root.rowconfigure(0, weight=1)
-        main_frame.columnconfigure(1, weight=1)
+        main_container.columnconfigure(1, weight=1)
+        main_container.rowconfigure(8, weight=1)  # Log area should expand (changed from row 9)
         
-        # Title
-        title_label = ttk.Label(main_frame, text="Web Media Scraper", 
-                               font=('Arial', 16, 'bold'))
-        title_label.grid(row=0, column=0, columnspan=2, pady=(0, 20))
+        # Modern title section
+        title_frame = tk.Frame(main_container, bg=self.colors['bg_primary'])
+        title_frame.grid(row=0, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 20))  # Reduced from 30 to 20
         
-        # URL Input
-        ttk.Label(main_frame, text="Starting URL:").grid(row=1, column=0, sticky=tk.W, pady=5)
+        title_label = tk.Label(title_frame, text="Web Media Scraper", 
+                              font=('Segoe UI', 20, 'bold'),
+                              fg=self.colors['text_primary'],
+                              bg=self.colors['bg_primary'])
+        title_label.pack(side=tk.LEFT)
+        
+        subtitle_label = tk.Label(title_frame, text="Professional media file discovery tool", 
+                                 font=('Segoe UI', 10),
+                                 fg=self.colors['text_secondary'],
+                                 bg=self.colors['bg_primary'])
+        subtitle_label.pack(side=tk.LEFT, padx=(15, 0))
+        
+        # Input section with cards
+        self.create_input_section(main_container, 1)
+        
+        # Options section
+        self.create_options_section(main_container, 5)
+        
+        # Control buttons
+        self.create_control_section(main_container, 6)
+        
+        # Progress section
+        self.create_progress_section(main_container, 7)
+        
+        # Log section
+        self.create_log_section(main_container, 8)
+        
+        # Status section
+        self.create_status_section(main_container, 9)  # Moved up from row 10
+        
+        # Configure canvas scrolling
+        self.setup_canvas_scrolling()
+    
+    def setup_canvas_scrolling(self):
+        """Setup canvas scrolling functionality"""
+        # Update scroll region when frame changes
+        def configure_scroll_region(event=None):
+            self.main_canvas.configure(scrollregion=self.main_canvas.bbox('all'))
+            
+            # Make canvas window width match canvas width
+            canvas_width = self.main_canvas.winfo_width()
+            if canvas_width > 1:  # Only if canvas is properly sized
+                self.main_canvas.itemconfig(self.canvas_window, width=canvas_width)
+        
+        self.scrollable_frame.bind('<Configure>', configure_scroll_region)
+        self.main_canvas.bind('<Configure>', configure_scroll_region)
+        
+        # Bind mouse wheel scrolling
+        def on_mousewheel(event):
+            # Check if we're over the main canvas (not the log text widget)
+            widget = event.widget
+            if widget == self.main_canvas or widget in [self.scrollable_frame] or str(widget).startswith(str(self.scrollable_frame)):
+                self.main_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        
+        # Bind mouse wheel to canvas and all child widgets
+        def bind_mousewheel(widget):
+            widget.bind("<MouseWheel>", on_mousewheel)  # Windows/Mac
+            widget.bind("<Button-4>", lambda e: self.main_canvas.yview_scroll(-1, "units"))  # Linux scroll up
+            widget.bind("<Button-5>", lambda e: self.main_canvas.yview_scroll(1, "units"))   # Linux scroll down
+            
+            # Recursively bind to all children except log text (which has its own scrolling)
+            for child in widget.winfo_children():
+                if child != self.log_text:  # Don't interfere with log scrolling
+                    bind_mousewheel(child)
+        
+        # Initial binding
+        self.root.after(100, lambda: bind_mousewheel(self.root))
+        
+        # Update scroll region initially
+        self.root.after(100, configure_scroll_region)
+    
+    def create_input_section(self, parent, start_row):
+        """Create input fields with modern card styling"""
+        # URL Input Card
+        url_card = tk.Frame(parent, bg=self.colors['bg_tertiary'], relief='flat', bd=1)
+        url_card.grid(row=start_row, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 15))
+        url_card.columnconfigure(1, weight=1)
+        
+        tk.Label(url_card, text="Starting URL", 
+                font=('Segoe UI', 11, 'bold'),
+                fg=self.colors['text_primary'],
+                bg=self.colors['bg_tertiary']).grid(row=0, column=0, sticky=tk.W, padx=15, pady=(15, 5))
+        
         self.url_var = tk.StringVar()
-        url_entry = ttk.Entry(main_frame, textvariable=self.url_var, width=60)
-        url_entry.grid(row=1, column=1, sticky=(tk.W, tk.E), pady=5, padx=(10, 0))
+        url_entry = tk.Entry(url_card, textvariable=self.url_var,
+                            font=('Segoe UI', 10),
+                            bg=self.colors['bg_secondary'],
+                            fg=self.colors['text_primary'],
+                            insertbackground=self.colors['text_primary'],
+                            relief='flat', bd=0)
+        url_entry.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E), padx=15, pady=(0, 15))
         ToolTip(url_entry, "Enter the starting URL to begin scraping (e.g., https://example.com/page1)")
         
-        # File Types Input
-        ttk.Label(main_frame, text="File Types:").grid(row=2, column=0, sticky=tk.W, pady=5)
+        # File Types Card
+        types_card = tk.Frame(parent, bg=self.colors['bg_tertiary'], relief='flat', bd=1)
+        types_card.grid(row=start_row+1, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 15))
+        types_card.columnconfigure(1, weight=1)
+        
+        tk.Label(types_card, text="File Types", 
+                font=('Segoe UI', 11, 'bold'),
+                fg=self.colors['text_primary'],
+                bg=self.colors['bg_tertiary']).grid(row=0, column=0, sticky=tk.W, padx=15, pady=(15, 5))
+        
         self.filetypes_var = tk.StringVar(value="mp4,webm,avi,mov")
-        filetypes_entry = ttk.Entry(main_frame, textvariable=self.filetypes_var, width=60)
-        filetypes_entry.grid(row=2, column=1, sticky=(tk.W, tk.E), pady=5, padx=(10, 0))
-        ToolTip(filetypes_entry, "File extensions to search for, separated by commas")
-        ttk.Label(main_frame, text="(comma-separated, e.g., mp4,webm,avi)", 
-                 font=('Arial', 8)).grid(row=3, column=1, sticky=tk.W, padx=(10, 0))
+        types_entry = tk.Entry(types_card, textvariable=self.filetypes_var,
+                              font=('Segoe UI', 10),
+                              bg=self.colors['bg_secondary'],
+                              fg=self.colors['text_primary'],
+                              insertbackground=self.colors['text_primary'],
+                              relief='flat', bd=0)
+        types_entry.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E), padx=15, pady=(0, 5))
+        ToolTip(types_entry, "File extensions to search for, separated by commas")
         
-        # Next Link Patterns
-        ttk.Label(main_frame, text="Next Link Patterns:").grid(row=4, column=0, sticky=tk.W, pady=5)
+        tk.Label(types_card, text="Comma-separated (e.g., mp4,webm,avi,mov)", 
+                font=('Segoe UI', 9),
+                fg=self.colors['text_muted'],
+                bg=self.colors['bg_tertiary']).grid(row=2, column=0, sticky=tk.W, padx=15, pady=(0, 15))
+        
+        # Next Patterns Card  
+        patterns_card = tk.Frame(parent, bg=self.colors['bg_tertiary'], relief='flat', bd=1)
+        patterns_card.grid(row=start_row+2, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 15))
+        patterns_card.columnconfigure(1, weight=1)
+        
+        tk.Label(patterns_card, text="Next Page Patterns", 
+                font=('Segoe UI', 11, 'bold'),
+                fg=self.colors['text_primary'],
+                bg=self.colors['bg_tertiary']).grid(row=0, column=0, sticky=tk.W, padx=15, pady=(15, 5))
+        
         self.next_patterns_var = tk.StringVar(value="next,>>,→,continue,more")
-        next_patterns_entry = ttk.Entry(main_frame, textvariable=self.next_patterns_var, width=60)
-        next_patterns_entry.grid(row=4, column=1, sticky=(tk.W, tk.E), pady=5, padx=(10, 0))
-        ToolTip(next_patterns_entry, "Text patterns that indicate 'next page' links")
-        ttk.Label(main_frame, text="(comma-separated text patterns to find next page)", 
-                 font=('Arial', 8)).grid(row=5, column=1, sticky=tk.W, padx=(10, 0))
+        patterns_entry = tk.Entry(patterns_card, textvariable=self.next_patterns_var,
+                                 font=('Segoe UI', 10),
+                                 bg=self.colors['bg_secondary'],
+                                 fg=self.colors['text_primary'],
+                                 insertbackground=self.colors['text_primary'],
+                                 relief='flat', bd=0)
+        patterns_entry.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E), padx=15, pady=(0, 5))
+        ToolTip(patterns_entry, "Text patterns that indicate 'next page' links")
         
-        # Output File
-        ttk.Label(main_frame, text="Output File:").grid(row=6, column=0, sticky=tk.W, pady=5)
-        output_frame = ttk.Frame(main_frame)
-        output_frame.grid(row=6, column=1, sticky=(tk.W, tk.E), pady=5, padx=(10, 0))
+        tk.Label(patterns_card, text="Text patterns to find pagination links", 
+                font=('Segoe UI', 9),
+                fg=self.colors['text_muted'],
+                bg=self.colors['bg_tertiary']).grid(row=2, column=0, sticky=tk.W, padx=15, pady=(0, 15))
+        
+        # Output File Card
+        output_card = tk.Frame(parent, bg=self.colors['bg_tertiary'], relief='flat', bd=1)
+        output_card.grid(row=start_row+3, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 15))
+        output_card.columnconfigure(1, weight=1)
+        
+        tk.Label(output_card, text="Output File", 
+                font=('Segoe UI', 11, 'bold'),
+                fg=self.colors['text_primary'],
+                bg=self.colors['bg_tertiary']).grid(row=0, column=0, sticky=tk.W, padx=15, pady=(15, 5))
+        
+        output_frame = tk.Frame(output_card, bg=self.colors['bg_tertiary'])
+        output_frame.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E), padx=15, pady=(0, 15))
         output_frame.columnconfigure(0, weight=1)
         
         self.output_var = tk.StringVar(value="scraped_links.txt")
-        output_entry = ttk.Entry(output_frame, textvariable=self.output_var)
-        output_entry.grid(row=0, column=0, sticky=(tk.W, tk.E), padx=(0, 5))
+        output_entry = tk.Entry(output_frame, textvariable=self.output_var,
+                               font=('Segoe UI', 10),
+                               bg=self.colors['bg_secondary'],
+                               fg=self.colors['text_primary'],
+                               insertbackground=self.colors['text_primary'],
+                               relief='flat', bd=0)
+        output_entry.grid(row=0, column=0, sticky=(tk.W, tk.E), padx=(0, 10))
         
-        browse_btn = ttk.Button(output_frame, text="Browse", command=self.browse_output_file)
+        browse_btn = tk.Button(output_frame, text="Browse", command=self.browse_output_file,
+                              font=('Segoe UI', 9),
+                              bg=self.colors['accent'],
+                              fg=self.colors['text_primary'],
+                              relief='flat', bd=0,
+                              padx=15, pady=8,
+                              cursor='hand2')
         browse_btn.grid(row=0, column=1)
         
-        # Options frame
-        options_frame = ttk.LabelFrame(main_frame, text="Options", padding="10")
-        options_frame.grid(row=7, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=10)
+        # Add hover effects to browse button
+        browse_btn.bind("<Enter>", lambda e: browse_btn.config(bg=self.colors['accent_hover']))
+        browse_btn.bind("<Leave>", lambda e: browse_btn.config(bg=self.colors['accent']))
+    
+    def create_options_section(self, parent, row):
+        """Create options section with modern styling"""
+        options_card = tk.Frame(parent, bg=self.colors['bg_tertiary'], relief='flat', bd=1)
+        options_card.grid(row=row, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 20))
         
-        # CAPTCHA mode checkbox
+        tk.Label(options_card, text="Options", 
+                font=('Segoe UI', 11, 'bold'),
+                fg=self.colors['text_primary'],
+                bg=self.colors['bg_tertiary']).grid(row=0, column=0, sticky=tk.W, padx=15, pady=(15, 10))
+        
+        # CAPTCHA checkbox with modern styling
         self.captcha_var = tk.BooleanVar()
-        captcha_check = ttk.Checkbutton(options_frame, text="CAPTCHA Mode (opens visible browser)", 
-                                       variable=self.captcha_var)
-        captcha_check.grid(row=0, column=0, sticky=tk.W)
+        captcha_check = tk.Checkbutton(options_card, text="CAPTCHA Mode (opens visible browser)", 
+                                      variable=self.captcha_var,
+                                      font=('Segoe UI', 10),
+                                      fg=self.colors['text_primary'],
+                                      bg=self.colors['bg_tertiary'],
+                                      selectcolor=self.colors['bg_secondary'],
+                                      activebackground=self.colors['bg_tertiary'],
+                                      activeforeground=self.colors['text_primary'],
+                                      relief='flat')
+        captcha_check.grid(row=1, column=0, columnspan=2, sticky=tk.W, padx=15, pady=(0, 15))
         ToolTip(captcha_check, "Enable to open a visible browser window for manual CAPTCHA solving")
+    
+    def create_control_section(self, parent, row):
+        """Create control buttons with modern styling"""
+        control_frame = tk.Frame(parent, bg=self.colors['bg_primary'])
+        control_frame.grid(row=row, column=0, columnspan=2, pady=10)  # Reduced from 20 to 10
         
-        # Max pages
-        ttk.Label(options_frame, text="Max Pages (0 = unlimited):").grid(row=1, column=0, sticky=tk.W, pady=5)
-        self.max_pages_var = tk.StringVar(value="50")
-        max_pages_entry = ttk.Entry(options_frame, textvariable=self.max_pages_var, width=10)
-        max_pages_entry.grid(row=1, column=1, sticky=tk.W, padx=(10, 0))
-        ToolTip(max_pages_entry, "Maximum number of pages to scrape (0 for unlimited)")
+        self.start_btn = tk.Button(control_frame, text="Start Scraping", 
+                                  command=self.start_scraping,
+                                  font=('Segoe UI', 11, 'bold'),
+                                  bg=self.colors['success'],
+                                  fg=self.colors['bg_primary'],
+                                  relief='flat', bd=0,
+                                  padx=25, pady=8,  # Reduced from 30,12 to 25,8
+                                  cursor='hand2')
+        self.start_btn.pack(side=tk.LEFT, padx=(0, 8))  # Reduced from 10 to 8
         
-        # Control buttons
-        control_frame = ttk.Frame(main_frame)
-        control_frame.grid(row=8, column=0, columnspan=2, pady=20)
+        # Add hover effects
+        self.start_btn.bind("<Enter>", lambda e: self.start_btn.config(bg='#4CAF50'))
+        self.start_btn.bind("<Leave>", lambda e: self.start_btn.config(bg=self.colors['success']))
         
-        self.start_btn = ttk.Button(control_frame, text="Start Scraping", 
-                                   command=self.start_scraping, style='Accent.TButton')
-        self.start_btn.grid(row=0, column=0, padx=5)
+        self.stop_btn = tk.Button(control_frame, text="Stop", 
+                                 command=self.stop_scraping, 
+                                 state='disabled',
+                                 font=('Segoe UI', 11, 'bold'),
+                                 bg=self.colors['danger'],
+                                 fg=self.colors['text_primary'],
+                                 relief='flat', bd=0,
+                                 padx=18, pady=8,  # Reduced from 20,12 to 18,8
+                                 cursor='hand2')
+        self.stop_btn.pack(side=tk.LEFT, padx=(0, 8))  # Reduced from 10 to 8
         
-        self.stop_btn = ttk.Button(control_frame, text="Stop", 
-                                  command=self.stop_scraping, state='disabled')
-        self.stop_btn.grid(row=0, column=1, padx=5)
+        # Add hover effects
+        self.stop_btn.bind("<Enter>", lambda e: self.stop_btn.config(bg='#F44336') if self.stop_btn['state'] != 'disabled' else None)
+        self.stop_btn.bind("<Leave>", lambda e: self.stop_btn.config(bg=self.colors['danger']) if self.stop_btn['state'] != 'disabled' else None)
         
-        self.clear_btn = ttk.Button(control_frame, text="Clear Log", 
-                                   command=self.clear_log)
-        self.clear_btn.grid(row=0, column=2, padx=5)
+        self.clear_btn = tk.Button(control_frame, text="Clear Log", 
+                                  command=self.clear_log,
+                                  font=('Segoe UI', 10),
+                                  bg=self.colors['bg_tertiary'],
+                                  fg=self.colors['text_primary'],
+                                  relief='flat', bd=0,
+                                  padx=12, pady=6,  # Reduced from 15,10 to 12,6
+                                  cursor='hand2')
+        self.clear_btn.pack(side=tk.LEFT)
         
-        # Progress bar
-        self.progress = ttk.Progressbar(main_frame, mode='indeterminate')
-        self.progress.grid(row=9, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=10)
+        # Add hover effects
+        self.clear_btn.bind("<Enter>", lambda e: self.clear_btn.config(bg=self.colors['bg_secondary']))
+        self.clear_btn.bind("<Leave>", lambda e: self.clear_btn.config(bg=self.colors['bg_tertiary']))
+    
+    def create_progress_section(self, parent, row):
+        """Create progress section with modern styling"""
+        progress_frame = tk.Frame(parent, bg=self.colors['bg_primary'])
+        progress_frame.grid(row=row, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(0, 15))
+        progress_frame.columnconfigure(0, weight=1)
         
-        # Log output
-        log_frame = ttk.LabelFrame(main_frame, text="Log Output", padding="5")
-        log_frame.grid(row=10, column=0, columnspan=2, sticky=(tk.W, tk.E, tk.N, tk.S), pady=10)
-        log_frame.columnconfigure(0, weight=1)
-        log_frame.rowconfigure(0, weight=1)
-        main_frame.rowconfigure(10, weight=1)
+        # Create a custom progress bar using a frame and canvas
+        self.progress_container = tk.Frame(progress_frame, bg=self.colors['bg_tertiary'], height=8)
+        self.progress_container.grid(row=0, column=0, sticky=(tk.W, tk.E))
+        self.progress_container.columnconfigure(0, weight=1)
         
-        self.log_text = scrolledtext.ScrolledText(log_frame, height=15, wrap=tk.WORD)
-        self.log_text.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        self.progress_canvas = tk.Canvas(self.progress_container, height=6, 
+                                        bg=self.colors['bg_tertiary'], 
+                                        highlightthickness=0)
+        self.progress_canvas.grid(row=0, column=0, sticky=(tk.W, tk.E), padx=2, pady=1)
         
-        # Status bar and results
-        status_frame = ttk.Frame(main_frame)
-        status_frame.grid(row=11, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=5)
-        status_frame.columnconfigure(1, weight=1)
+        # Animation variables
+        self.progress_running = False
+        self.progress_position = 0
+    
+    def start_progress_animation(self):
+        """Start custom progress bar animation"""
+        self.progress_running = True
+        self.animate_progress()
+    
+    def stop_progress_animation(self):
+        """Stop custom progress bar animation"""
+        self.progress_running = False
+        self.progress_canvas.delete("all")
+    
+    def animate_progress(self):
+        """Animate the custom progress bar"""
+        if not self.progress_running:
+            return
+        
+        # Clear previous drawing
+        self.progress_canvas.delete("all")
+        
+        # Get canvas dimensions
+        width = self.progress_canvas.winfo_width()
+        height = self.progress_canvas.winfo_height()
+        
+        if width > 1:  # Only draw if canvas is properly sized
+            # Create moving gradient effect
+            bar_width = width // 3
+            x = (self.progress_position % (width + bar_width)) - bar_width
+            
+            # Draw the moving bar
+            self.progress_canvas.create_rectangle(
+                x, 0, x + bar_width, height,
+                fill=self.colors['accent'], outline=""
+            )
+            
+            self.progress_position += 2
+        
+        # Schedule next frame
+        self.root.after(50, self.animate_progress)
+    
+    def create_log_section(self, parent, row):
+        """Create log section with modern styling"""
+        log_card = tk.Frame(parent, bg=self.colors['bg_tertiary'], relief='flat', bd=1)
+        log_card.grid(row=row, column=0, columnspan=2, sticky=(tk.W, tk.E, tk.N, tk.S), pady=(0, 15))
+        log_card.columnconfigure(0, weight=1)
+        log_card.rowconfigure(1, weight=1)
+        
+        tk.Label(log_card, text="Activity Log", 
+                font=('Segoe UI', 11, 'bold'),
+                fg=self.colors['text_primary'],
+                bg=self.colors['bg_tertiary']).grid(row=0, column=0, sticky=tk.W, padx=15, pady=(15, 10))
+        
+        # Custom text widget with modern styling - reduced height
+        self.log_text = tk.Text(log_card, height=8, wrap=tk.WORD,  # Reduced from 12 to 8
+                               font=('Consolas', 9),
+                               bg=self.colors['bg_secondary'],
+                               fg=self.colors['text_primary'],
+                               insertbackground=self.colors['text_primary'],
+                               relief='flat', bd=0,
+                               selectbackground=self.colors['accent'],
+                               selectforeground=self.colors['text_primary'])
+        self.log_text.grid(row=1, column=0, sticky=(tk.W, tk.E, tk.N, tk.S), padx=(15, 5), pady=(0, 15))
+        
+        # Modern styled scrollbar for log - always visible
+        scrollbar = tk.Scrollbar(log_card, command=self.log_text.yview,
+                                orient='vertical',
+                                bg=self.colors['bg_secondary'],      # Darker background
+                                troughcolor=self.colors['bg_primary'], # Even darker trough
+                                activebackground=self.colors['accent'], # Bright when active
+                                highlightthickness=0,
+                                bd=1,                                # Add border
+                                width=16,                            # Make wider for visibility
+                                elementborderwidth=1,
+                                relief='raised',                     # Make it stand out
+                                activerelief='raised')
+        
+        # Override system colors to ensure visibility
+        scrollbar.configure(
+            bg=self.colors['bg_secondary'],           # Scrollbar background
+            troughcolor=self.colors['bg_primary'],    # Track (trough) color  
+            activebackground=self.colors['accent'],   # Color when clicked/active
+            highlightbackground=self.colors['bg_tertiary'], # Highlight background
+            highlightcolor=self.colors['accent'],     # Highlight color
+            jump=0,                                   # Don't jump, smooth scroll
+            repeatdelay=300,                          # Repeat delay for holding
+            repeatinterval=100                        # Repeat interval
+        )
+        
+        scrollbar.grid(row=1, column=1, sticky=(tk.N, tk.S), pady=(0, 15), padx=(0, 15))
+        self.log_text.config(yscrollcommand=scrollbar.set)
+        
+        # Add initial welcome message to show scrollbar
+        welcome_msg = ("Welcome to Web Media Scraper!\n"
+                      "Enter a starting URL to begin\n" 
+                      "Configure file types to search for\n"
+                      "Set pagination patterns\n"
+                      "Click 'Start Scraping' when ready\n"
+                      "Scroll here to see activity logs...\n")
+        self.log_text.insert(tk.END, welcome_msg)
+        self.log_text.see(tk.END)
+    
+    def create_status_section(self, parent, row):
+        """Create status section with modern styling"""
+        status_card = tk.Frame(parent, bg=self.colors['bg_tertiary'], relief='flat', bd=1)
+        status_card.grid(row=row, column=0, columnspan=2, sticky=(tk.W, tk.E))
+        status_card.columnconfigure(1, weight=1)
         
         self.status_var = tk.StringVar(value="Ready")
-        status_bar = ttk.Label(status_frame, textvariable=self.status_var, relief=tk.SUNKEN)
-        status_bar.grid(row=0, column=0, columnspan=2, sticky=(tk.W, tk.E))
+        status_label = tk.Label(status_card, textvariable=self.status_var,
+                               font=('Segoe UI', 10),
+                               fg=self.colors['text_primary'],
+                               bg=self.colors['bg_tertiary'])
+        status_label.grid(row=0, column=0, sticky=tk.W, padx=15, pady=10)
         
         # Results summary
         self.results_var = tk.StringVar(value="")
-        results_label = ttk.Label(status_frame, textvariable=self.results_var, font=('Arial', 9, 'bold'))
-        results_label.grid(row=1, column=0, columnspan=2, sticky=tk.W, pady=(2, 0))
+        results_label = tk.Label(status_card, textvariable=self.results_var, 
+                                font=('Segoe UI', 10, 'bold'),
+                                fg=self.colors['success'],
+                                bg=self.colors['bg_tertiary'])
+        results_label.grid(row=0, column=1, sticky=tk.E, padx=15, pady=10)
     
     def browse_output_file(self):
         """Open file dialog to select output file"""
         filename = filedialog.asksaveasfilename(
             defaultextension=".txt",
             filetypes=[("Text files", "*.txt"), ("All files", "*.*")],
-            initialvalue=self.output_var.get()
+            initialfile=self.output_var.get()
         )
         if filename:
             self.output_var.set(filename)
@@ -248,14 +678,6 @@ class MediaScraperGUI:
             messagebox.showerror("Error", "Please enter at least one file type")
             return False
         
-        try:
-            max_pages = int(self.max_pages_var.get()) if self.max_pages_var.get() else 0
-            if max_pages < 0:
-                raise ValueError()
-        except ValueError:
-            messagebox.showerror("Error", "Max pages must be a positive number or 0")
-            return False
-        
         return True
     
     def start_scraping(self):
@@ -271,7 +693,7 @@ class MediaScraperGUI:
         self.is_scraping = True
         self.start_btn.config(state='disabled')
         self.stop_btn.config(state='normal')
-        self.progress.start()
+        self.start_progress_animation()
         self.status_var.set("Scraping in progress...")
         
         # Start scraping thread
@@ -282,14 +704,17 @@ class MediaScraperGUI:
         """Stop the scraping process"""
         self.is_scraping = False
         self.status_var.set("Stopping...")
-        logging.info("🛑 Stopping scraper...")
+        logging.info("Stopping scraper...")
+        
+        # Force stop by updating UI immediately
+        self.root.update_idletasks()
     
     def scraping_finished(self, success=True):
         """Called when scraping is finished"""
         self.is_scraping = False
         self.start_btn.config(state='normal')
         self.stop_btn.config(state='disabled')
-        self.progress.stop()
+        self.stop_progress_animation()
         
         if success:
             self.status_var.set("Scraping completed successfully")
@@ -321,8 +746,9 @@ class MediaScraperGUI:
                     chrome_options.binary_location = path
                     break
             
+            # Reduce timeouts for better responsiveness
             driver = webdriver.Chrome(options=chrome_options)
-            driver.set_page_load_timeout(15)
+            driver.set_page_load_timeout(10)  # Reduced from 15
             return driver
         except Exception as e:
             error_msg = f"Failed to setup Chrome driver: {e}\n\nPlease ensure Chrome/Chromium is installed and chromedriver is in PATH."
@@ -334,18 +760,31 @@ class MediaScraperGUI:
         """Find media links using Selenium with configurable file types"""
         media_links = []
         
+        # Check if we should stop before starting
+        if not self.is_scraping:
+            return []
+        
         try:
-            # Wait for page to load
-            WebDriverWait(driver, 3).until(
+            # Wait for page to load with shorter timeout
+            WebDriverWait(driver, 2).until(  # Reduced from 3
                 EC.presence_of_element_located((By.TAG_NAME, "body"))
             )
             
-            WebDriverWait(driver, 5).until(
+            # Check again after waiting
+            if not self.is_scraping:
+                return []
+            
+            WebDriverWait(driver, 3).until(  # Reduced from 5
                 lambda d: len(d.page_source) > 10000 or  
                 d.find_elements(By.XPATH, "//video | //img | //a | //*[contains(@class, 'post')]")
             )
         except Exception as e:
             logging.warning(f"Content loading timeout: {e}")
+            # Still continue to scrape what we can
+        
+        # Final check before processing
+        if not self.is_scraping:
+            return []
         
         page_source = driver.page_source
         
@@ -409,10 +848,18 @@ class MediaScraperGUI:
     def find_next_page(self, driver, next_patterns):
         """Find next page using configurable patterns"""
         try:
+            # Check if we should stop
+            if not self.is_scraping:
+                return None
+                
             wait = WebDriverWait(driver, 2)
             
             # Try each pattern
             for pattern in next_patterns:
+                # Check if we should stop during pattern iteration
+                if not self.is_scraping:
+                    return None
+                    
                 selectors = [
                     f"a[class*='{pattern}']",
                     f"a[rel='{pattern}']",
@@ -422,6 +869,10 @@ class MediaScraperGUI:
                 ]
                 
                 for selector in selectors:
+                    # Check if we should stop during selector iteration
+                    if not self.is_scraping:
+                        return None
+                        
                     try:
                         if selector.startswith("//"):
                             next_link = wait.until(
@@ -448,7 +899,7 @@ class MediaScraperGUI:
             with open(filename, "a") as f:
                 for link in sorted(media_links):
                     f.write(link + "\n")
-            logging.info(f"💾 Appended {len(media_links)} links to {filename}")
+            logging.info(f"Appended {len(media_links)} links to {filename}")
             return True
         except Exception as e:
             logging.error(f"Failed to save links to file: {e}")
@@ -463,13 +914,12 @@ class MediaScraperGUI:
             next_patterns = [p.strip().lower() for p in self.next_patterns_var.get().split(',') if p.strip()]
             output_file = self.output_var.get().strip()
             captcha_mode = self.captcha_var.get()
-            max_pages = int(self.max_pages_var.get()) if self.max_pages_var.get() else 0
             
-            logging.info("🚀 Starting Web Media Scraper")
-            logging.info(f"🎯 Target URL: {url}")
-            logging.info(f"📁 Output file: {output_file}")
-            logging.info(f"🎬 File types: {', '.join(file_types)}")
-            logging.info(f"🔗 Next patterns: {', '.join(next_patterns)}")
+            logging.info("Starting Web Media Scraper")
+            logging.info(f"Target URL: {url}")
+            logging.info(f"Output file: {output_file}")
+            logging.info(f"File types: {', '.join(file_types)}")
+            logging.info(f"Next patterns: {', '.join(next_patterns)}")
             
             # Setup driver
             driver = self.setup_selenium_driver(captcha_mode)
@@ -485,7 +935,7 @@ class MediaScraperGUI:
                 
                 # CAPTCHA handling
                 if captcha_mode:
-                    logging.info("🧩 CAPTCHA MODE: Opening browser for manual intervention...")
+                    logging.info("CAPTCHA MODE: Opening browser for manual intervention...")
                     driver.get(page_url)
                     
                     # Create a dialog for CAPTCHA mode
@@ -523,17 +973,24 @@ class MediaScraperGUI:
                 pages_without_media = 0
                 
                 while page_url and self.is_scraping:
-                    if max_pages > 0 and page_count >= max_pages:
-                        logging.info(f"🏁 Reached maximum pages limit ({max_pages})")
-                        break
-                    
                     page_count += 1
                     logging.info(f"Processing page {page_count}: {page_url}")
                     
+                    # Check if we should stop before processing this page
+                    if not self.is_scraping:
+                        break
+                    
                     try:
                         if not captcha_mode or page_count > 1:
+                            # Check again before navigating to new page
+                            if not self.is_scraping:
+                                break
                             driver.get(page_url)
                         
+                        # Check again after page load
+                        if not self.is_scraping:
+                            break
+                            
                         page_media = self.get_media_links(driver, file_types)
                         
                         if page_media:
@@ -542,46 +999,54 @@ class MediaScraperGUI:
                             pages_without_media = 0
                             
                             if new_links:
-                                logging.info(f"🎉 Page {page_count}: FOUND {len(new_links)} new files! (Total: {len(collected_media)})")
+                                logging.info(f"Page {page_count}: FOUND {len(new_links)} new files! (Total: {len(collected_media)})")
                                 for link in list(new_links)[:5]:  # Show first 5
-                                    logging.info(f"  📹 {link}")
+                                    logging.info(f"  {link}")
                                 if len(new_links) > 5:
                                     logging.info(f"  ... and {len(new_links) - 5} more")
                                 
                                 self.save_media_links_to_file(new_links, output_file)
                             else:
-                                logging.info(f"⚪ Page {page_count}: No new files (all duplicates)")
+                                logging.info(f"Page {page_count}: No new files (all duplicates)")
                         else:
                             pages_without_media += 1
                             if pages_without_media <= 5:
-                                logging.info(f"⚪ Page {page_count}: No media files found")
+                                logging.info(f"Page {page_count}: No media files found")
                         
                         # Find next page
+                        if not self.is_scraping:
+                            break
                         page_url = self.find_next_page(driver, next_patterns)
                         if page_url:
-                            time.sleep(0.1 if pages_without_media > 0 else 0.3)
+                            # Responsive sleep - check every 0.1 seconds
+                            sleep_time = 0.1 if pages_without_media > 0 else 0.3
+                            sleep_steps = int(sleep_time / 0.1)
+                            for _ in range(sleep_steps):
+                                if not self.is_scraping:
+                                    break
+                                time.sleep(0.1)
                         else:
-                            logging.info("✅ No more pages found")
+                            logging.info("No more pages found")
                             break
                     
                     except Exception as e:
-                        logging.error(f"❌ Error on page {page_count}: {e}")
+                        logging.error(f"Error on page {page_count}: {e}")
                         break
                 
                 # Final summary
                 if collected_media:
-                    logging.info(f"🎊 SUCCESS! Found {len(collected_media)} media links total")
-                    logging.info(f"📁 Saved to: {output_file}")
-                    self.root.after(0, lambda: self.results_var.set(f"✅ Found {len(collected_media)} media files"))
+                    logging.info(f"SUCCESS! Found {len(collected_media)} media links total")
+                    logging.info(f"Saved to: {output_file}")
+                    self.root.after(0, lambda: self.results_var.set(f"Found {len(collected_media)} media files"))
                 else:
-                    logging.warning("⚠️  No media links found")
-                    self.root.after(0, lambda: self.results_var.set("⚠️ No media files found"))
+                    logging.warning("No media links found")
+                    self.root.after(0, lambda: self.results_var.set("No media files found"))
                 
                 self.scraping_finished(True)
                 
             finally:
                 driver.quit()
-                logging.info("🔒 Browser closed")
+                logging.info("Browser closed")
         
         except Exception as e:
             logging.error(f"Fatal error during scraping: {e}")

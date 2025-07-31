@@ -2,6 +2,8 @@
 
 A GUI application for scraping media files from websites with customizable parameters.
 
+![Application Screenshot](app-screenshot.png)
+
 ## Features
 
 - **Easy-to-use GUI** with real-time log output

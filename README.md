@@ -2,6 +2,8 @@
 
 Python GUI application for scraping media links using Selenium. Features customized file type filtering, pagination support, and CAPTCHA handling.
 
+![Smart Media Finder screenshot](demo.png)
+
 ## How to use
 
 ### Setup

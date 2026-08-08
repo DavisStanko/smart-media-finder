@@ -1,29 +1,23 @@
 # Smart Media Finder
 
-A GUI application for scraping media files from websites with customizable parameters.
+Python GUI application for scraping media links using Selenium. Features customized file type filtering, pagination support, and CAPTCHA handling.
 
-![Application Screenshot](app-screenshot.png)
+## How to use
 
-## Features
+### Setup
 
-- **Easy-to-use GUI** with real-time log output
-- **Customizable file types** (mp4, webm, avi, mov, etc.)
-- **Pagination support** with configurable next-page patterns (_automatically follows "Next" buttons to scrape multiple pages_)
-- **CAPTCHA handling** for sites requiring manual intervention
-- **Multi-threaded** to keep UI responsive during scraping
+1. Clone the repository and navigate to the folder.
+2. Set up a virtual environment and install dependencies:
 
-## Installation
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
 
-1. Clone the repository and navigate to the folder
-2. Set up virtual environment and install dependencies:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r requirements.txt
-   ```
-3. Install Chrome browser (required for Selenium)
+3. Install the Chrome browser. This is required for Selenium.
 
-## Usage
+### Run the program
 
 Run the application:
 
@@ -31,19 +25,21 @@ Run the application:
 python main.py
 ```
 
-1. Enter the starting URL
-2. Configure file types and next-page patterns (defaults provided)
-3. Enable CAPTCHA mode if needed
-4. Click "Start Scraping" and monitor progress
+1. Enter the starting URL.
+2. Configure file types and next-page patterns. Defaults are provided.
+3. Enable CAPTCHA mode if needed.
+4. Click "Start Scraping" and monitor progress.
 
-## Requirements
+### Requirements
 
 - Python 3.7+
-- Chrome/Chromium browser
+- Chrome or Chromium browser
 - Dependencies listed in `requirements.txt`
+
+## How it works
+
+Smart Media Finder uses Selenium to control a Chrome browser and scrape pages. It runs multi-threaded, so the interface stays responsive during a scrape. It follows pagination by matching configurable "Next"-button patterns, to move through multiple pages. When CAPTCHA mode is enabled, the program pauses so a CAPTCHA can be solved manually.
 
 ## License
 
-This project is licensed under the [GPL-3.0](LICENSE.md)
-GNU General Public License - see the [LICENSE.md](LICENSE.md) file for
-details.
+This project uses the GPL-3.0 license. See the [LICENSE.md](LICENSE.md) file for details.

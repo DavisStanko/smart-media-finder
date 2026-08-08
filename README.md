@@ -1,4 +1,4 @@
-# Web Media Scraper
+# Smart Media Finder
 
 A GUI application for scraping media files from websites with customizable parameters.
 
